@@ -1,10 +1,16 @@
 package com.ajb.vendingmachine;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
+import com.ajb.vendingmachine.adapter.GalleryAdapter;
 import com.ajb.vendingmachine.util.GlideImageLoader;
 import com.ajb.vendingmachine.util.qrcode.EncodingHandler;
 import com.google.zxing.WriterException;
@@ -13,21 +19,29 @@ import com.youth.banner.BannerConfig;
 import com.youth.banner.Transformer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
+    private Context context;
     Banner banner;
     private Bitmap qRCodeBitmap;
     private ImageView qRcodeIv;
+
+    private RecyclerView mRecyclerView;
+    private GalleryAdapter mAdapter;
+    private List<Integer> mDatas;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        context = this;
         initBanner();
         setQRCode();
+        initGallery();
     }
 
     private void initBanner() {
@@ -75,5 +89,31 @@ public class MainActivity extends AppCompatActivity {
             }
         }).start();
 
+    }
+
+    private void initGallery() {
+        initRecyclerViewDatas();
+        //得到控件
+        mRecyclerView = (RecyclerView) findViewById(R.id.id_recyclerview_horizontal);
+        //设置布局管理器
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        mRecyclerView.setLayoutManager(linearLayoutManager);
+        //设置适配器
+        mAdapter = new GalleryAdapter(context, mDatas);
+        mAdapter.setOnItemClickListener(new GalleryAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Toast.makeText(MainActivity.this, position+"", Toast.LENGTH_SHORT).show();
+            }
+        });
+        mRecyclerView.setAdapter(mAdapter);
+    }
+
+    private void initRecyclerViewDatas() {
+        mDatas = new ArrayList<Integer>(Arrays.asList(R.mipmap.b1,
+                R.mipmap.b2,
+                R.mipmap.b3,
+                R.mipmap.b3,R.mipmap.b3,R.mipmap.b3,R.mipmap.b3,R.mipmap.b3));
     }
 }
