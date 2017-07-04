@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -62,6 +63,21 @@ public class MainActivity extends AppCompatActivity {
 
     HandlerThread handlerThread;
     Handler mHandler;
+
+    Handler subscribeHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+           switch(msg.what) {
+               case 1:
+                   subscribe("android1");
+                   break;
+               case 0:
+                   break;
+               default:
+                   break;
+           }
+        }
+    };
 
     private String clientID = "york";
     private String serverIP = "192.168.42.19";
@@ -171,7 +187,6 @@ public class MainActivity extends AppCompatActivity {
                 String info = textView.getText().toString();
                 Toast.makeText(MainActivity.this, position+":"+info, Toast.LENGTH_SHORT).show();
                 setQRCode(urlDatas.get(position));
-                subscribe("android1");
             }
         });
         mRecyclerView.setAdapter(mAdapter);
@@ -218,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
          * 开始连接服务器，参数：ConnectionOptions,  IMqttActionListener
          */
         try {
-            client.connect(conOpt, null, new ConnectCallBackHandler(context));
+            client.connect(conOpt, null, new ConnectCallBackHandler(context,subscribeHandler));
         } catch (MqttException e) {
             e.printStackTrace();
         }
@@ -241,7 +256,6 @@ public class MainActivity extends AppCompatActivity {
     public void subscribe(String topic) {
         MqttAndroidClient client = getMqttAndroidClientInstace();
         if(client != null) {
-
             try {
                 client.subscribe(topic,0,null,new SubcribeCallBackHandler(context));
             } catch (MqttException e) {
