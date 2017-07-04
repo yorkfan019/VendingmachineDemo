@@ -19,8 +19,6 @@ import java.util.List;
 public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
 
 
-
-
     public interface OnItemClickListener {
         void onItemClick(View view, int position);
     }
@@ -34,16 +32,13 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
     private LayoutInflater mInflater;
     private List<Integer> mDatas;
 
-    public GalleryAdapter(Context context, List<Integer> datats)
-    {
+    public GalleryAdapter(Context context, List<Integer> datats) {
         mInflater = LayoutInflater.from(context);
         mDatas = datats;
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder
-    {
-        public ViewHolder(View arg0)
-        {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        public ViewHolder(View arg0) {
             super(arg0);
         }
 
@@ -59,6 +54,8 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
 
         viewHolder.mImg = (ImageView) view
                 .findViewById(R.id.id_index_gallery_item_image);
+        viewHolder.mTxt = (TextView) view
+                .findViewById(R.id.id_index_gallery_item_text);
         return viewHolder;
     }
 
@@ -81,7 +78,4 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
     public int getItemCount() {
         return mDatas.size();
     }
-
-
-
 }

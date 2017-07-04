@@ -3,20 +3,36 @@ package com.ajb.vendingmachine;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ajb.vendingmachine.adapter.GalleryAdapter;
+import com.ajb.vendingmachine.callback.ConnectCallBackHandler;
+import com.ajb.vendingmachine.callback.MqttCallbackHandler;
+import com.ajb.vendingmachine.callback.SubcribeCallBackHandler;
+import com.ajb.vendingmachine.event.MessageEvent;
 import com.ajb.vendingmachine.util.GlideImageLoader;
 import com.ajb.vendingmachine.util.qrcode.EncodingHandler;
 import com.google.zxing.WriterException;
 import com.youth.banner.Banner;
 import com.youth.banner.BannerConfig;
 import com.youth.banner.Transformer;
+
+import org.eclipse.paho.android.service.MqttAndroidClient;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,6 +49,24 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private GalleryAdapter mAdapter;
     private List<Integer> mDatas;
+    private List<String> urlDatas = new ArrayList<String>(Arrays.asList("https://www.baidu.com/",
+            "http://www.qq.com/",
+            "http://www.tabobao.com/",
+            "https://www.baidu.com/",
+            "http://www.qq.com/",
+            "http://www.tabobao.com/",
+            "https://www.baidu.com/",
+            "http://www.qq.com/",
+            "http://www.tabobao.com/"));
+
+
+    HandlerThread handlerThread;
+    Handler mHandler;
+
+    private String clientID = "york";
+    private String serverIP = "192.168.42.19";
+    private String port = "1883";
+    private static MqttAndroidClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,8 +74,36 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         context = this;
         initBanner();
-        setQRCode();
         initGallery();
+        handlerThread = new HandlerThread("CreateQRcode");
+        handlerThread.start();
+        mHandler = new Handler();
+        startConnectActiveMq(clientID,serverIP,port);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(client != null) {
+            try {
+                client.disconnect();
+            } catch (MqttException e) {
+                e.printStackTrace();
+            }
+        }
+        handlerThread.quit();
     }
 
     private void initBanner() {
@@ -69,13 +131,14 @@ public class MainActivity extends AppCompatActivity {
         banner.start();
     }
 
-    private void setQRCode() {
+    private void setQRCode(final String url) {
         qRcodeIv = (ImageView) findViewById(R.id.ivQRCode);
-        new Thread(new Runnable() {
+        mHandler.post(new Runnable() {
             @Override
             public void run() {
                 try {
-                    qRCodeBitmap = EncodingHandler.createQRCode("http://baidu.com/",(int) (2 * getResources().getDimension(R.dimen.qrcode_size)));
+                    int widthAndHeight = (int) (2 * getResources().getDimension(R.dimen.qrcode_size));
+                    qRCodeBitmap = EncodingHandler.createQRCode(url,widthAndHeight);
                 } catch (WriterException e) {
                     e.printStackTrace();
                 }
@@ -87,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
             }
-        }).start();
+        });
 
     }
 
@@ -104,7 +167,11 @@ public class MainActivity extends AppCompatActivity {
         mAdapter.setOnItemClickListener(new GalleryAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                Toast.makeText(MainActivity.this, position+"", Toast.LENGTH_SHORT).show();
+                TextView textView = (TextView) view.findViewById(R.id.id_index_gallery_item_text);
+                String info = textView.getText().toString();
+                Toast.makeText(MainActivity.this, position+":"+info, Toast.LENGTH_SHORT).show();
+                setQRCode(urlDatas.get(position));
+                subscribe("android1");
             }
         });
         mRecyclerView.setAdapter(mAdapter);
@@ -114,6 +181,92 @@ public class MainActivity extends AppCompatActivity {
         mDatas = new ArrayList<Integer>(Arrays.asList(R.mipmap.b1,
                 R.mipmap.b2,
                 R.mipmap.b3,
-                R.mipmap.b3,R.mipmap.b3,R.mipmap.b3,R.mipmap.b3,R.mipmap.b3));
+                R.mipmap.b1,
+                R.mipmap.b2,
+                R.mipmap.b3,
+                R.mipmap.b1,
+                R.mipmap.b2,
+                R.mipmap.b3));
+    }
+
+
+    /**
+     * 连接activeMQ服务器
+     */
+    private void startConnectActiveMq(String clientID, String serverIP, String port) {
+        //服务器地址
+        String uri = "tcp://";
+        uri = uri+serverIP+":"+port;
+        Log.d(TAG,uri+"  "+clientID);
+        /**
+         * 连接的选项
+         */
+        MqttConnectOptions conOpt = new MqttConnectOptions();
+        /**设计连接超时时间*/
+        conOpt.setConnectionTimeout(3000);
+        /**设计心跳间隔时间300秒*/
+        conOpt.setKeepAliveInterval(300);
+        /**
+         * 创建连接对象
+         */
+        client = new MqttAndroidClient(context,uri, clientID);
+        /**
+         * 连接后设计一个回调
+         */
+        client.setCallback(new MqttCallbackHandler(context, clientID));
+        /**
+         * 开始连接服务器，参数：ConnectionOptions,  IMqttActionListener
+         */
+        try {
+            client.connect(conOpt, null, new ConnectCallBackHandler(context));
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 获取MqttAndroidClient实例
+     * @return
+     */
+    public static MqttAndroidClient getMqttAndroidClientInstace(){
+        if(client!=null)
+            return  client;
+        return null;
+    }
+
+
+    /**
+     * 订阅topic
+     */
+    public void subscribe(String topic) {
+        MqttAndroidClient client = getMqttAndroidClientInstace();
+        if(client != null) {
+
+            try {
+                client.subscribe(topic,0,null,new SubcribeCallBackHandler(context));
+            } catch (MqttException e) {
+                e.printStackTrace();
+            }
+        } else {
+            Log.e("subscribe","MqttAndroidClient==null");
+        }
+    }
+
+    /**
+     * 运行在主线程
+     * @param event
+     */
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(MessageEvent event) {
+        String string = event.getString();
+        if("".equals(string)){
+            String topic = event.getTopic();
+            MqttMessage mqttMessage = event.getMqttMessage();
+            String s = new String(mqttMessage.getPayload());
+            topic=topic+" : "+s;
+            Toast.makeText(MainActivity.this, topic, Toast.LENGTH_SHORT).show();
+        }else{
+            Toast.makeText(MainActivity.this, "订阅成功", Toast.LENGTH_SHORT).show();
+        }
     }
 }
