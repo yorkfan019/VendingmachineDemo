@@ -34,6 +34,8 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,8 +52,8 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private GalleryAdapter mAdapter;
     private List<Integer> mDatas;
-    private List<String> urlDatas = new ArrayList<String>(Arrays.asList("https://www.baidu.com/",
-            "http://www.qq.com/",
+    private List<String> urlDatas = new ArrayList<String>(Arrays.asList("weixin://.dfadfadfadsf.,dfadf/",
+            "alipay://dfdafadf.dfadfadfadf",
             "http://www.tabobao.com/",
             "https://www.baidu.com/",
             "http://www.qq.com/",
@@ -69,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
         public void handleMessage(Message msg) {
            switch(msg.what) {
                case 1:
-                   subscribe("android1");
+                   subscribe("anjubao/vem/topic/pay/notify");
                    break;
                case 0:
                    break;
@@ -79,9 +81,10 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    private String clientID = "york";
-    private String serverIP = "192.168.42.19";
+    private String clientID = "android_vem_pay";
+//    private String serverIP = "192.168.42.19";
     private String port = "1883";
+    private String serverIP = "192.168.200.88";
     private static MqttAndroidClient client;
 
     @Override
@@ -271,13 +274,18 @@ public class MainActivity extends AppCompatActivity {
      * @param event
      */
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessageEvent(MessageEvent event) {
+    public void onMessageEvent(MessageEvent event) throws JSONException {
         String string = event.getString();
         if("".equals(string)){
             String topic = event.getTopic();
             MqttMessage mqttMessage = event.getMqttMessage();
             String s = new String(mqttMessage.getPayload());
             topic=topic+" : "+s;
+//            JSONObject jsonObject =  new JSONObject(s);
+//            String outTradeNo = jsonObject.getString("outTradeNo");
+//            String payResult = jsonObject.getString("payResult");
+//            String datetime = jsonObject.getString("datetime");
+//            topic=topic+" : "+" outTradeNo: "+outTradeNo+" payResult:"+payResult+" datetime:"+datetime;
             Toast.makeText(MainActivity.this, topic, Toast.LENGTH_SHORT).show();
         }else{
             Toast.makeText(MainActivity.this, "订阅成功", Toast.LENGTH_SHORT).show();
