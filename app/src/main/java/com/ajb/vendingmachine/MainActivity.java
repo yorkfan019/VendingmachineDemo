@@ -82,9 +82,9 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private String clientID = "android_vem_pay";
-//    private String serverIP = "192.168.42.19";
+    private String serverIP = "192.168.42.19";
     private String port = "1883";
-    private String serverIP = "192.168.200.88";
+//    private String serverIP = "192.168.200.88";
     private static MqttAndroidClient client;
 
     @Override
