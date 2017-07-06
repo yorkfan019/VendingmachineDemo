@@ -20,6 +20,9 @@ import com.ajb.vendingmachine.callback.ConnectCallBackHandler;
 import com.ajb.vendingmachine.callback.MqttCallbackHandler;
 import com.ajb.vendingmachine.callback.SubcribeCallBackHandler;
 import com.ajb.vendingmachine.event.MessageEvent;
+import com.ajb.vendingmachine.http.DataLoader;
+import com.ajb.vendingmachine.http.Fault;
+import com.ajb.vendingmachine.model.notice;
 import com.ajb.vendingmachine.util.GlideImageLoader;
 import com.ajb.vendingmachine.util.qrcode.EncodingHandler;
 import com.google.zxing.WriterException;
@@ -35,11 +38,12 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import rx.functions.Action1;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -190,6 +194,7 @@ public class MainActivity extends AppCompatActivity {
                 String info = textView.getText().toString();
                 Toast.makeText(MainActivity.this, position+":"+info, Toast.LENGTH_SHORT).show();
                 setQRCode(urlDatas.get(position));
+                httpRequest();
             }
         });
         mRecyclerView.setAdapter(mAdapter);
@@ -291,4 +296,35 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(MainActivity.this, "订阅成功", Toast.LENGTH_SHORT).show();
         }
     }
+
+
+    private DataLoader mDataLoader = new DataLoader();
+    /**
+     * 网络请求相关
+     */
+    private void httpRequest() {
+        int noticeId = 3;
+        mDataLoader.getPayInfo(noticeId).subscribe(new Action1<notice>() {
+            @Override
+            public void call(notice notice) {
+                Log.e(TAG,notice.toString());
+            }
+        }, new Action1<Throwable>() {
+            @Override
+            public void call(Throwable throwable) {
+                Log.e("TAG","error message:"+throwable.getMessage());
+                if(throwable instanceof Fault){
+                    Fault fault = (Fault) throwable;
+                    if(fault.getErrorCode() == 404){
+                        //错误处理
+                    }else if(fault.getErrorCode() == 500){
+                        //错误处理
+                    }else if(fault.getErrorCode() == 501){
+                        //错误处理
+                    }
+                }
+            }
+        });
+    }
+
 }
