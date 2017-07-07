@@ -12,7 +12,6 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ajb.vendingmachine.adapter.GalleryAdapter;
@@ -23,6 +22,8 @@ import com.ajb.vendingmachine.event.MessageEvent;
 import com.ajb.vendingmachine.http.DataLoader;
 import com.ajb.vendingmachine.http.Fault;
 import com.ajb.vendingmachine.model.activityDetail;
+import com.ajb.vendingmachine.ui.AlertDialog;
+import com.ajb.vendingmachine.ui.QRcodeAlertDialog;
 import com.ajb.vendingmachine.util.GlideImageLoader;
 import com.ajb.vendingmachine.util.qrcode.EncodingHandler;
 import com.google.zxing.WriterException;
@@ -50,8 +51,9 @@ public class MainActivity extends AppCompatActivity {
 
     private Context context;
     Banner banner;
-    private Bitmap qRCodeBitmap;
-    private ImageView qRcodeIv;
+    private Bitmap weChatBitmap;
+    private Bitmap alipayBitmap;
+    private ImageView detailIv;
 
     private RecyclerView mRecyclerView;
     private GalleryAdapter mAdapter;
@@ -91,6 +93,8 @@ public class MainActivity extends AppCompatActivity {
 //    private String serverIP = "192.168.200.88";
     private static MqttAndroidClient client;
     private DataLoader mDataLoader;
+    private int iv_position = 0;
+    private QRcodeAlertDialog.OnDialogButtonClickListener dialogButtonClickListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +108,17 @@ public class MainActivity extends AppCompatActivity {
         handlerThread.start();
         mHandler = new Handler();
         startConnectActiveMq(clientID,serverIP,port);
+        dialogButtonClickListener = new QRcodeAlertDialog.OnDialogButtonClickListener() {
+            @Override
+            public void onDialogButtonClick(int requestCode, boolean isPositive) {
+                if(isPositive) {
+                    new AlertDialog(context,"付款成功","出货中，请在取货口出货").show();
+                } else {
+                    new AlertDialog(context,""
+                            ,"很抱歉，商品出货失败！\n"+ "请联系客服人员，客服电话：020*******").show();
+                }
+            }
+        };
     }
 
     @Override
@@ -156,14 +171,14 @@ public class MainActivity extends AppCompatActivity {
         banner.start();
     }
 
-    private void setQRCode(final String url) {
-        qRcodeIv = (ImageView) findViewById(R.id.ivQRCode);
+    private void setQRCode(final String weChatUrl,final String alipayUrl) {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
                 try {
                     int widthAndHeight = (int) (2 * getResources().getDimension(R.dimen.qrcode_size));
-                    qRCodeBitmap = EncodingHandler.createQRCode(url,widthAndHeight);
+                    weChatBitmap = EncodingHandler.createQRCode(weChatUrl,widthAndHeight);
+                    alipayBitmap = EncodingHandler.createQRCode(alipayUrl,widthAndHeight);
                 } catch (WriterException e) {
                     e.printStackTrace();
                 }
@@ -171,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        qRcodeIv.setImageBitmap(qRCodeBitmap);
+                       new QRcodeAlertDialog(context,7,weChatBitmap,alipayBitmap,dialogButtonClickListener).show();
                     }
                 });
             }
@@ -183,6 +198,13 @@ public class MainActivity extends AppCompatActivity {
         initRecyclerViewDatas();
         //得到控件
         mRecyclerView = (RecyclerView) findViewById(R.id.id_recyclerview_horizontal);
+        detailIv = (ImageView) findViewById(R.id.iv_detail);
+        detailIv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setQRCode(urlDatas.get(iv_position),urlDatas.get(iv_position+1));
+            }
+        });
         //设置布局管理器
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -192,11 +214,8 @@ public class MainActivity extends AppCompatActivity {
         mAdapter.setOnItemClickListener(new GalleryAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                TextView textView = (TextView) view.findViewById(R.id.id_index_gallery_item_text);
-                String info = textView.getText().toString();
-                Toast.makeText(MainActivity.this, position+":"+info, Toast.LENGTH_SHORT).show();
-                setQRCode(urlDatas.get(position));
-                httpRequest();
+                detailIv.setImageResource(mDatas.get(position));
+                iv_position = position;
             }
         });
         mRecyclerView.setAdapter(mAdapter);

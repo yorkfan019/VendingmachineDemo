@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="300dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="10dp"
+    android:background="@drawable/dialog_background">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="20dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="支付"
+            android:textSize="20sp"
+            />
+
+        <TextView
+            android:id="@+id/tv_price"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="$7.5"
+            android:textSize="20sp"
+            />
+    </LinearLayout>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:text="请选择支付方式"
+        android:gravity="center_horizontal"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="微信"
+                android:textSize="12sp"
+                />
+            <ImageView
+                android:id="@+id/iv_wechat"
+                android:layout_margin="10dp"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@mipmap/b1"
+                android:scaleType="centerCrop"
+                android:layout_gravity="center_horizontal"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="支付宝"
+                android:textSize="12sp"
+                />
+            <ImageView
+                android:id="@+id/iv_alipay"
+                android:layout_margin="10dp"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@mipmap/b2"
+                android:scaleType="centerCrop"
+                android:layout_gravity="center_horizontal"/>
+        </LinearLayout>
+
+
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="请在90秒内支付完成"
+        android:textSize="12sp"
+        android:gravity="center_horizontal"
+        />
+    <Button
+        android:id="@+id/btn_qrcode_close"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_gravity="center_horizontal"
+        android:text="关闭"/>
+</LinearLayout>

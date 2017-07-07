@@ -11,14 +11,16 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/banner"
         android:layout_width="match_parent"
-        android:layout_height="150dp" />
+        android:layout_height="100dp"
+        android:layout_marginBottom="20dp"/>
 
     <ImageView
         android:id="@+id/iv_detail"
         android:layout_below="@+id/banner"
         android:layout_centerHorizontal="true"
-        android:layout_width="300dp"
-        android:layout_height="300dp" />
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:scaleType="centerCrop"/>
 
     <ImageView
         android:id="@+id/ivQRCode"

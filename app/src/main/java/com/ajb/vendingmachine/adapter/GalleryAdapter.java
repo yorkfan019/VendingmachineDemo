@@ -43,7 +43,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
         }
 
         ImageView mImg;
-        TextView mTxt;
     }
 
     @Override
@@ -54,8 +53,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
 
         viewHolder.mImg = (ImageView) view
                 .findViewById(R.id.id_index_gallery_item_image);
-        viewHolder.mTxt = (TextView) view
-                .findViewById(R.id.id_index_gallery_item_text);
         return viewHolder;
     }
 
