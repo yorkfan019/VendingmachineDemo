@@ -22,7 +22,7 @@ import com.ajb.vendingmachine.callback.SubcribeCallBackHandler;
 import com.ajb.vendingmachine.event.MessageEvent;
 import com.ajb.vendingmachine.http.DataLoader;
 import com.ajb.vendingmachine.http.Fault;
-import com.ajb.vendingmachine.model.notice;
+import com.ajb.vendingmachine.model.activityDetail;
 import com.ajb.vendingmachine.util.GlideImageLoader;
 import com.ajb.vendingmachine.util.qrcode.EncodingHandler;
 import com.google.zxing.WriterException;
@@ -90,12 +90,14 @@ public class MainActivity extends AppCompatActivity {
     private String port = "1883";
 //    private String serverIP = "192.168.200.88";
     private static MqttAndroidClient client;
+    private DataLoader mDataLoader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         context = this;
+        mDataLoader = new DataLoader();
         initBanner();
         initGallery();
         handlerThread = new HandlerThread("CreateQRcode");
@@ -298,21 +300,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private DataLoader mDataLoader = new DataLoader();
+
     /**
      * 网络请求相关
      */
     private void httpRequest() {
-        int noticeId = 3;
-        mDataLoader.getPayInfo(noticeId).subscribe(new Action1<notice>() {
+
+        int activityId = 2;
+        mDataLoader.getActivityDetail(activityId).subscribe(new Action1<activityDetail>() {
             @Override
-            public void call(notice notice) {
-                Log.e(TAG,notice.toString());
+            public void call(activityDetail activityDetail) {
+                Log.e(TAG, activityDetail.toString());
             }
         }, new Action1<Throwable>() {
             @Override
             public void call(Throwable throwable) {
-                Log.e("TAG","error message:"+throwable.getMessage());
+                Log.e(TAG,"error message:"+throwable.getMessage());
                 if(throwable instanceof Fault){
                     Fault fault = (Fault) throwable;
                     if(fault.getErrorCode() == 404){

@@ -1,10 +1,11 @@
 package com.ajb.vendingmachine.http;
 
-import com.google.gson.Gson;
+import android.util.Log;
 
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -28,6 +29,16 @@ public class RetrofitServiceManager {
                 .addHeaderParams("OmpUserAccount","admin")
                 .build();
         builder.addInterceptor(commonInterceptor);
+        //添加日志
+        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
+            @Override
+            public void log(String message) {
+                //打印retrofit日志
+                Log.e("RetrofitLog","retrofitBack = "+message);
+            }
+        });
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        builder.addInterceptor(loggingInterceptor);
         mRetrofit = new Retrofit.Builder()
                 .client(builder.build())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())

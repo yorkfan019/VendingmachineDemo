@@ -1,12 +1,11 @@
 package com.ajb.vendingmachine.http;
 
 
-import com.ajb.vendingmachine.model.notice;
+import com.ajb.vendingmachine.model.activityDetail;
 
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 import rx.Observable;
-import rx.functions.Func1;
 
 /**
  * Created by fanyufeng on 2017-7-6.
@@ -19,18 +18,14 @@ public class DataLoader extends ObjectLoader {
         mPayInfoService = RetrofitServiceManager.getInstance().create(PayInfoService.class);
     }
 
-    public Observable<notice> getPayInfo(int noticeId) {
-        return observe(mPayInfoService.getPayInfo(noticeId))
-                .map(new Func1<notice, notice>() {
-                    @Override
-                    public notice call(notice notice) {
-                        return notice;
-                    }
-                });
+    public Observable<activityDetail> getActivityDetail(int activityId) {
+        return observe(mPayInfoService.getActivityDetail(activityId)).map(new PayLoad<activityDetail>());
     }
 
     public interface PayInfoService{
-        @GET("interaction/notice/detail")
-        Observable<notice> getPayInfo(@Query("noticeId") int noticeId);
+
+        @GET("interaction/activity/detail")
+        Observable<BaseResponse<activityDetail>> getActivityDetail(@Query("activityId") int activityId);
     }
+
 }

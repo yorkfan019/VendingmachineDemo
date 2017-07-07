@@ -6,7 +6,7 @@ import java.io.Serializable;
  * Created by fanyufeng on 2017-7-5.
  */
 
-public class payInfo implements Serializable {
+public class PayInfo implements Serializable {
 
     private String wxpayCodeUrl;
     private String alipayCodeUrl;

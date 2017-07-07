@@ -6,7 +6,7 @@ import java.io.Serializable;
  * Created by fanyufeng on 2017-7-5.
  */
 
-public class payNotify implements Serializable {
+public class PayNotify implements Serializable {
 
     private String outTradeNo;
     private String payResult;
