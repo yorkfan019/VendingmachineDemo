@@ -68,8 +68,7 @@ public class MainActivity extends AppCompatActivity {
             "http://www.qq.com/",
             "http://www.tabobao.com/",
             "https://www.baidu.com/",
-            "http://www.qq.com/",
-            "http://www.tabobao.com/"));
+            "http://www.qq.com/"));
 
 
     HandlerThread handlerThread;
@@ -159,9 +158,9 @@ public class MainActivity extends AppCompatActivity {
     private void initBanner() {
         banner = (Banner) findViewById(R.id.banner);
         List<Integer> list=new ArrayList<>();
-        list.add(R.mipmap.b1);
-        list.add(R.mipmap.b2);
-        list.add(R.mipmap.b3);
+        list.add(R.mipmap.banner1);
+        list.add(R.mipmap.banner2);
+        list.add(R.mipmap.banner3);
 
         //设置banner样式
         banner.setBannerStyle(BannerConfig.CIRCLE_INDICATOR);
@@ -235,15 +234,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initRecyclerViewDatas() {
-        mDatas = new ArrayList<Integer>(Arrays.asList(R.mipmap.b1,
-                R.mipmap.b2,
-                R.mipmap.b3,
-                R.mipmap.b1,
-                R.mipmap.b2,
-                R.mipmap.b3,
-                R.mipmap.b1,
-                R.mipmap.b2,
-                R.mipmap.b3));
+        mDatas = new ArrayList<Integer>(Arrays.asList(R.mipmap.p1,
+                R.mipmap.p2,
+                R.mipmap.p3,
+                R.mipmap.p4,
+                R.mipmap.p5,
+                R.mipmap.p1,
+                R.mipmap.p2,
+                R.mipmap.p3));
     }
 
 
