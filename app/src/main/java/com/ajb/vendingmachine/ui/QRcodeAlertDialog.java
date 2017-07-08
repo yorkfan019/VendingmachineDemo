@@ -4,7 +4,10 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -39,6 +42,8 @@ public class QRcodeAlertDialog extends Dialog implements View.OnClickListener {
     private ImageView alipayIv;
     private Button btn_close;
     private OnDialogButtonClickListener listener;
+    private int windowWidth;
+    private int windowHeight;
 
     /**
      * 带监听器参数的构造函数
@@ -52,13 +57,39 @@ public class QRcodeAlertDialog extends Dialog implements View.OnClickListener {
         this.listener = listener;
     }
 
+    public QRcodeAlertDialog(Context context, int price, Bitmap weChatBitmap,Bitmap alipayBitmap,
+                             OnDialogButtonClickListener listener,int windowWidth, int windowHeight) {
+        super(context, R.style.MyDialog);
+        this.context = context;
+        this.price = price;
+        this.alipayBitmap = alipayBitmap;
+        this.weChatBitmap = weChatBitmap;
+        this.listener = listener;
+        this.windowWidth = windowWidth;
+        this.windowHeight = windowHeight;
+    }
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.alert_dialog_qrcode);
+
+        WindowManager.LayoutParams params = getWindow().getAttributes();
+        params.width = (int) (windowWidth * 0.8); // 宽度设置为屏幕的一定比例大小
+        params.height = (int) (windowHeight * 0.6); // 宽度设置为屏幕的一定比例大小
+        params.gravity = Gravity.CENTER;
+        getWindow().setAttributes(params);
         setCanceledOnTouchOutside(true);
         tv_price = (TextView) findViewById(R.id.tv_price);
         wechatIv = (ImageView) findViewById(R.id.iv_wechat);
         alipayIv = (ImageView) findViewById(R.id.iv_alipay);
+        ViewGroup.LayoutParams we_params = wechatIv.getLayoutParams();
+        we_params.height = (int) (windowWidth*0.3);
+        we_params.width = (int) (windowWidth*0.3);
+        wechatIv.setLayoutParams(we_params);
+        ViewGroup.LayoutParams al_params = wechatIv.getLayoutParams();
+        al_params.height = (int) (windowWidth*0.3);
+        al_params.width = (int) (windowWidth*0.3);
+        alipayIv.setLayoutParams(al_params);
         btn_close = (Button) findViewById(R.id.btn_qrcode_close);
         tv_price.setText("￥"+price);
         wechatIv.setImageBitmap(weChatBitmap);

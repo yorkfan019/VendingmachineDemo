@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.ajb.vendingmachine.R;
 
@@ -31,10 +30,17 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
 
     private LayoutInflater mInflater;
     private List<Integer> mDatas;
+    private int mRecyclerViewWidth;
 
     public GalleryAdapter(Context context, List<Integer> datats) {
         mInflater = LayoutInflater.from(context);
         mDatas = datats;
+    }
+
+    public GalleryAdapter(Context context, List<Integer> datats ,int recyclerViewWidth) {
+        mInflater = LayoutInflater.from(context);
+        mDatas = datats;
+        mRecyclerViewWidth = recyclerViewWidth;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -49,6 +55,8 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View view = mInflater.inflate(R.layout.activity_index_gallery_item,
                 viewGroup, false);
+        view.getLayoutParams().width = mRecyclerViewWidth/5;
+        view.getLayoutParams().height = mRecyclerViewWidth/5;
         ViewHolder viewHolder = new ViewHolder(view);
 
         viewHolder.mImg = (ImageView) view

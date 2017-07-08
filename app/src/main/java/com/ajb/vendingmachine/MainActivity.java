@@ -9,6 +9,7 @@ import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -50,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     private Context context;
+    private int windowWidth;
+    private int windowHeight;
     Banner banner;
     private Bitmap weChatBitmap;
     private Bitmap alipayBitmap;
@@ -101,6 +104,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         context = this;
+        DisplayMetrics metric = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metric);
+        windowWidth = metric.widthPixels;     // 屏幕宽度（像素）
+        windowHeight = metric.heightPixels;   // 屏幕高度（像素）
+
         mDataLoader = new DataLoader();
         initBanner();
         initGallery();
@@ -111,12 +119,14 @@ public class MainActivity extends AppCompatActivity {
         dialogButtonClickListener = new QRcodeAlertDialog.OnDialogButtonClickListener() {
             @Override
             public void onDialogButtonClick(int requestCode, boolean isPositive) {
+                AlertDialog dialog;
                 if(isPositive) {
-                    new AlertDialog(context,"付款成功","出货中，请在取货口出货").show();
+                    dialog = new AlertDialog(context,"付款成功","出货中，请在取货口出货",windowWidth,windowHeight);
                 } else {
-                    new AlertDialog(context,""
-                            ,"很抱歉，商品出货失败！\n"+ "请联系客服人员，客服电话：020*******").show();
+                    dialog = new AlertDialog(context,""
+                            ,"很抱歉，商品出货失败！\n"+ "请联系客服人员，客服电话：020*******",windowWidth,windowHeight);
                 }
+                dialog.show();
             }
         };
     }
@@ -176,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    int widthAndHeight = (int) (2 * getResources().getDimension(R.dimen.qrcode_size));
+                    int widthAndHeight = (int) (windowWidth*0.3);
                     weChatBitmap = EncodingHandler.createQRCode(weChatUrl,widthAndHeight);
                     alipayBitmap = EncodingHandler.createQRCode(alipayUrl,widthAndHeight);
                 } catch (WriterException e) {
@@ -186,7 +196,8 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                       new QRcodeAlertDialog(context,7,weChatBitmap,alipayBitmap,dialogButtonClickListener).show();
+                       new QRcodeAlertDialog(context,7,weChatBitmap,alipayBitmap,
+                               dialogButtonClickListener,windowWidth,windowHeight).show();
                     }
                 });
             }
@@ -205,12 +216,14 @@ public class MainActivity extends AppCompatActivity {
                 setQRCode(urlDatas.get(iv_position),urlDatas.get(iv_position+1));
             }
         });
+        detailIv.setImageResource(mDatas.get(0));
         //设置布局管理器
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         mRecyclerView.setLayoutManager(linearLayoutManager);
+        int mRecyclerViewWidth =  windowWidth;
         //设置适配器
-        mAdapter = new GalleryAdapter(context, mDatas);
+        mAdapter = new GalleryAdapter(context, mDatas,mRecyclerViewWidth);
         mAdapter.setOnItemClickListener(new GalleryAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
