@@ -14,6 +14,8 @@ import android.widget.TextView;
 
 import com.ajb.vendingmachine.R;
 
+import java.text.DecimalFormat;
+
 /**
  * Created by fanyufeng on 2017-7-7.
  */
@@ -102,7 +104,7 @@ public class QRcodeAlertDialog extends Dialog implements View.OnClickListener {
         al_params.width = (int) (windowWidth*0.3);
         alipayIv.setLayoutParams(al_params);
         btn_close = (Button) findViewById(R.id.btn_qrcode_close);
-        tv_price.setText("￥"+price);
+        tv_price.setText("￥"+fenToYuan(price));
         wechatIv.setImageBitmap(weChatBitmap);
         alipayIv.setImageBitmap(alipayBitmap);
         btn_close.setOnClickListener(this);
@@ -121,5 +123,11 @@ public class QRcodeAlertDialog extends Dialog implements View.OnClickListener {
         if(view.getId() == R.id.iv_wechat) {
             listener.onDialogButtonClick(1,true);
         }
+    }
+
+    private String fenToYuan(int fen) {
+        double yuan = (double)fen/100;
+        DecimalFormat df = new DecimalFormat("0.00");//格式化小数，不足的补0
+        return df.format(yuan);//返回的是String类型的
     }
 }

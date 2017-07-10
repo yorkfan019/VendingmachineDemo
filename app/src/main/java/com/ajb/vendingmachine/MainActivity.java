@@ -97,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
 
     private MqttAndroidClient client;
     private DataLoader mDataLoader;
+    private Good mGood = new Good();
     private PayInfo mPayInfo = new PayInfo();
     private PayNotify mPayNotify = new PayNotify();
 
@@ -119,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
         initGallery();
         handlerThread = new HandlerThread("CreateQRcode");
         handlerThread.start();
-        mHandler = new Handler();
+        mHandler = new Handler(handlerThread.getLooper());
         //连接队列服务器
         startConnectActiveMq(ApiConfig.CLIENT_ID,ApiConfig.ACTIVE_MQ_IP,ApiConfig.ACTIVE_MQ_PORT);
     }
@@ -206,8 +207,12 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         dismissQRcodeAlertDialog();
-                        qRcodeAlertDialog = new QRcodeAlertDialog(context,7,weChatBitmap,alipayBitmap,
-                               windowWidth,windowHeight);
+                        qRcodeAlertDialog = new QRcodeAlertDialog(context,
+                                mGood.getGoodsPrice(),
+                                weChatBitmap,
+                                alipayBitmap,
+                                windowWidth,
+                                windowHeight);
                         qRcodeAlertDialog.show();
                     }
                 });
@@ -346,11 +351,17 @@ public class MainActivity extends AppCompatActivity {
             //根据返回结果弹出对应提示框
             dismissAlertDialog();
             dismissQRcodeAlertDialog();
-            if(mPayNotify.getPayResult().equals("success") && mPayNotify.getOutTradeNo().equals(mPayInfo.getOutTradeNo())) {
-                alertDialog = new AlertDialog(context,"付款成功","出货中，请在取货口出货",windowWidth,windowHeight);
+            if(mPayNotify.getPayResult().equals("success")
+                    && mPayNotify.getOutTradeNo().equals(mPayInfo.getOutTradeNo())) {
+
+                alertDialog = new AlertDialog(context,getResources().getString(R.string.pay_success),
+                        getResources().getString(R.string.success_content),
+                        windowWidth,
+                        windowHeight);
             } else {
+
                 alertDialog = new AlertDialog(context,""
-                        ,"很抱歉，商品出货失败！\n"+ "请联系客服人员，客服电话：020*******",windowWidth,windowHeight);
+                        , getResources().getString(R.string.fail_content),windowWidth,windowHeight);
             }
             alertDialog.show();
             Toast.makeText(MainActivity.this, topic, Toast.LENGTH_SHORT).show();
@@ -366,16 +377,14 @@ public class MainActivity extends AppCompatActivity {
      */
     private void httpRequest() {
 
-        Good good = new Good();
-        good.setGoodsName("可口可乐");
-        good.setGoodsNum(1);
-        good.setGoodsId("1");
-        good.setGoodsPrice(1);
-        good.setPassbackParam("pass");
-        mDataLoader.getPayInfo(good).subscribe(new Action1<PayInfo>() {
+        mGood.setGoodsName("可口可乐");
+        mGood.setGoodsNum(1);
+        mGood.setGoodsId("1");
+        mGood.setGoodsPrice(500);
+        mGood.setPassbackParam("pass");
+        mDataLoader.getPayInfo(mGood).subscribe(new Action1<PayInfo>() {
             @Override
             public void call(PayInfo payInfo) {
-                Log.e(TAG, "payInfo="+payInfo.toString());
                 mPayInfo = payInfo;
                 Log.e(TAG, "mPayInfo="+mPayInfo.toString());
                 setQRCode(mPayInfo.getWxpayCodeUrl(),mPayInfo.getWxpayCodeUrl());

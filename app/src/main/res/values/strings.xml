@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">Vending machine</string>
+
+    <string name="pay">支付</string>
+    <string name="wechat">微信</string>
+    <string name="alipay">支付宝</string>
+    <string name="select_pay_type">请选择支付方式</string>
+    <string name="pay_in_90s">请在90秒内支付完成</string>
+    <string name="close">关闭</string>
+
+    <string name="pay_finish">付款完成</string>
+    <string name="pay_success">付款成功</string>
+    <string name="pay_fail">付款失败</string>
+    <string name="success_content">出货中，请在取货口出货</string>
+    <string name="fail_content">很抱歉，商品出货失败！\n请联系客服人员，客服电话：020*******</string>
+
+
 </resources>
