@@ -5,6 +5,10 @@ package com.ajb.vendingmachine.http;
  */
 
 public class ApiConfig {
-    public static final String BASE_URL = "http://192.168.200.73:9702/communityApi/omp/";
+    public static final String BASE_URL = "http://dev1.dyajb.com/vemApi/";
+    public static final String CLIENT_ID = "android_vem_pay";
+    public static final String ACTIVE_MQ_IP = "192.168.200.88";
+    public static final String ACTIVE_MQ_PORT = "1883";
+
 
 }

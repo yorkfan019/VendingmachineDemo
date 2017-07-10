@@ -20,9 +20,12 @@ import com.ajb.vendingmachine.callback.ConnectCallBackHandler;
 import com.ajb.vendingmachine.callback.MqttCallbackHandler;
 import com.ajb.vendingmachine.callback.SubcribeCallBackHandler;
 import com.ajb.vendingmachine.event.MessageEvent;
-import com.ajb.vendingmachine.http.DataLoader;
+import com.ajb.vendingmachine.http.ApiConfig;
 import com.ajb.vendingmachine.http.Fault;
-import com.ajb.vendingmachine.model.activityDetail;
+import com.ajb.vendingmachine.loader.DataLoader;
+import com.ajb.vendingmachine.model.Good;
+import com.ajb.vendingmachine.model.PayInfo;
+import com.ajb.vendingmachine.model.PayNotify;
 import com.ajb.vendingmachine.ui.AlertDialog;
 import com.ajb.vendingmachine.ui.QRcodeAlertDialog;
 import com.ajb.vendingmachine.util.GlideImageLoader;
@@ -40,6 +43,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,15 +55,18 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     private Context context;
+    //屏幕宽高
     private int windowWidth;
     private int windowHeight;
-    Banner banner;
+
+    //UI
     private Bitmap weChatBitmap;
     private Bitmap alipayBitmap;
     private ImageView detailIv;
+    private QRcodeAlertDialog qRcodeAlertDialog;
+    private AlertDialog alertDialog;
 
-    private RecyclerView mRecyclerView;
-    private GalleryAdapter mAdapter;
+
     private List<Integer> mDatas;
     private List<String> urlDatas = new ArrayList<String>(Arrays.asList("weixin://.dfadfadfadsf.,dfadf/",
             "alipay://dfdafadf.dfadfadfadf",
@@ -73,7 +80,6 @@ public class MainActivity extends AppCompatActivity {
 
     HandlerThread handlerThread;
     Handler mHandler;
-
     Handler subscribeHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -89,45 +95,33 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    private String clientID = "android_vem_pay";
-    private String serverIP = "192.168.42.19";
-    private String port = "1883";
-//    private String serverIP = "192.168.200.88";
-    private static MqttAndroidClient client;
+    private MqttAndroidClient client;
     private DataLoader mDataLoader;
-    private int iv_position = 0;
-    private QRcodeAlertDialog.OnDialogButtonClickListener dialogButtonClickListener;
+    private PayInfo mPayInfo = new PayInfo();
+    private PayNotify mPayNotify = new PayNotify();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         context = this;
+        //获取屏幕宽高
         DisplayMetrics metric = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metric);
         windowWidth = metric.widthPixels;     // 屏幕宽度（像素）
         windowHeight = metric.heightPixels;   // 屏幕高度（像素）
 
         mDataLoader = new DataLoader();
+        //初始化banner
         initBanner();
+        //初始化底部滑动栏
         initGallery();
         handlerThread = new HandlerThread("CreateQRcode");
         handlerThread.start();
         mHandler = new Handler();
-        startConnectActiveMq(clientID,serverIP,port);
-        dialogButtonClickListener = new QRcodeAlertDialog.OnDialogButtonClickListener() {
-            @Override
-            public void onDialogButtonClick(int requestCode, boolean isPositive) {
-                AlertDialog dialog;
-                if(isPositive) {
-                    dialog = new AlertDialog(context,"付款成功","出货中，请在取货口出货",windowWidth,windowHeight);
-                } else {
-                    dialog = new AlertDialog(context,""
-                            ,"很抱歉，商品出货失败！\n"+ "请联系客服人员，客服电话：020*******",windowWidth,windowHeight);
-                }
-                dialog.show();
-            }
-        };
+        //连接队列服务器
+        startConnectActiveMq(ApiConfig.CLIENT_ID,ApiConfig.ACTIVE_MQ_IP,ApiConfig.ACTIVE_MQ_PORT);
     }
 
     @Override
@@ -145,6 +139,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        dismissAlertDialog();
+        dismissQRcodeAlertDialog();
+
         if(client != null) {
             try {
                 client.disconnect();
@@ -154,9 +151,22 @@ public class MainActivity extends AppCompatActivity {
         }
         handlerThread.quit();
     }
+    private void dismissAlertDialog() {
+        if(alertDialog != null && alertDialog.isShowing()) {
+            alertDialog.dismiss();
+            alertDialog = null;
+        }
+    }
+
+    private void dismissQRcodeAlertDialog() {
+        if(qRcodeAlertDialog != null && qRcodeAlertDialog.isShowing()) {
+            qRcodeAlertDialog.dismiss();
+            qRcodeAlertDialog = null;
+        }
+    }
 
     private void initBanner() {
-        banner = (Banner) findViewById(R.id.banner);
+        Banner banner = (Banner) findViewById(R.id.banner);
         List<Integer> list=new ArrayList<>();
         list.add(R.mipmap.banner1);
         list.add(R.mipmap.banner2);
@@ -195,8 +205,10 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                       new QRcodeAlertDialog(context,7,weChatBitmap,alipayBitmap,
-                               dialogButtonClickListener,windowWidth,windowHeight).show();
+                        dismissQRcodeAlertDialog();
+                        qRcodeAlertDialog = new QRcodeAlertDialog(context,7,weChatBitmap,alipayBitmap,
+                               windowWidth,windowHeight);
+                        qRcodeAlertDialog.show();
                     }
                 });
             }
@@ -205,14 +217,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initGallery() {
-        initRecyclerViewDatas();
+        initRecyclerViewData();
         //得到控件
-        mRecyclerView = (RecyclerView) findViewById(R.id.id_recyclerview_horizontal);
+        RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.id_recyclerview_horizontal);
         detailIv = (ImageView) findViewById(R.id.iv_detail);
         detailIv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setQRCode(urlDatas.get(iv_position),urlDatas.get(iv_position+1));
+                httpRequest();
             }
         });
         detailIv.setImageResource(mDatas.get(0));
@@ -222,18 +234,17 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(linearLayoutManager);
         int mRecyclerViewWidth =  windowWidth;
         //设置适配器
-        mAdapter = new GalleryAdapter(context, mDatas,mRecyclerViewWidth);
+        GalleryAdapter mAdapter = new GalleryAdapter(context, mDatas,mRecyclerViewWidth);
         mAdapter.setOnItemClickListener(new GalleryAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
                 detailIv.setImageResource(mDatas.get(position));
-                iv_position = position;
             }
         });
         mRecyclerView.setAdapter(mAdapter);
     }
 
-    private void initRecyclerViewDatas() {
+    private void initRecyclerViewData() {
         mDatas = new ArrayList<Integer>(Arrays.asList(R.mipmap.p1,
                 R.mipmap.p2,
                 R.mipmap.p3,
@@ -283,7 +294,7 @@ public class MainActivity extends AppCompatActivity {
      * 获取MqttAndroidClient实例
      * @return
      */
-    public static MqttAndroidClient getMqttAndroidClientInstace(){
+    private MqttAndroidClient getMqttAndroidClientInstance(){
         if(client!=null)
             return  client;
         return null;
@@ -294,7 +305,7 @@ public class MainActivity extends AppCompatActivity {
      * 订阅topic
      */
     public void subscribe(String topic) {
-        MqttAndroidClient client = getMqttAndroidClientInstace();
+        MqttAndroidClient client = getMqttAndroidClientInstance();
         if(client != null) {
             try {
                 client.subscribe(topic,0,null,new SubcribeCallBackHandler(context));
@@ -308,21 +319,40 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * 运行在主线程
+     * 订阅mqtt返回信息
      * @param event
      */
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessageEvent(MessageEvent event) throws JSONException {
+    public void onMessageEvent(MessageEvent event) {
         String string = event.getString();
+        Log.d(TAG,"event.getString() = " + string);
         if("".equals(string)){
             String topic = event.getTopic();
             MqttMessage mqttMessage = event.getMqttMessage();
             String s = new String(mqttMessage.getPayload());
             topic=topic+" : "+s;
-//            JSONObject jsonObject =  new JSONObject(s);
-//            String outTradeNo = jsonObject.getString("outTradeNo");
-//            String payResult = jsonObject.getString("payResult");
-//            String datetime = jsonObject.getString("datetime");
-//            topic=topic+" : "+" outTradeNo: "+outTradeNo+" payResult:"+payResult+" datetime:"+datetime;
+            Log.d(TAG,"mqttMessage.getPayload() = " + s);
+            Log.d(TAG,"mqttMessage.toString() = " + mqttMessage.toString());
+            try{
+                JSONObject jsonObject =  new JSONObject(s);
+                mPayNotify.setOutTradeNo(jsonObject.getString("outTradeNo"));
+                mPayNotify.setPayResult(jsonObject.getString("payResult"));
+                mPayNotify.setDatetime(jsonObject.getString("datetime"));
+                topic=topic+" : "+mPayNotify.toString();
+            }catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            //根据返回结果弹出对应提示框
+            dismissAlertDialog();
+            dismissQRcodeAlertDialog();
+            if(mPayNotify.getPayResult().equals("success") && mPayNotify.getOutTradeNo().equals(mPayInfo.getOutTradeNo())) {
+                alertDialog = new AlertDialog(context,"付款成功","出货中，请在取货口出货",windowWidth,windowHeight);
+            } else {
+                alertDialog = new AlertDialog(context,""
+                        ,"很抱歉，商品出货失败！\n"+ "请联系客服人员，客服电话：020*******",windowWidth,windowHeight);
+            }
+            alertDialog.show();
             Toast.makeText(MainActivity.this, topic, Toast.LENGTH_SHORT).show();
         }else{
             Toast.makeText(MainActivity.this, "订阅成功", Toast.LENGTH_SHORT).show();
@@ -336,11 +366,19 @@ public class MainActivity extends AppCompatActivity {
      */
     private void httpRequest() {
 
-        int activityId = 2;
-        mDataLoader.getActivityDetail(activityId).subscribe(new Action1<activityDetail>() {
+        Good good = new Good();
+        good.setGoodsName("可口可乐");
+        good.setGoodsNum(1);
+        good.setGoodsId("1");
+        good.setGoodsPrice(1);
+        good.setPassbackParam("pass");
+        mDataLoader.getPayInfo(good).subscribe(new Action1<PayInfo>() {
             @Override
-            public void call(activityDetail activityDetail) {
-                Log.e(TAG, activityDetail.toString());
+            public void call(PayInfo payInfo) {
+                Log.e(TAG, "payInfo="+payInfo.toString());
+                mPayInfo = payInfo;
+                Log.e(TAG, "mPayInfo="+mPayInfo.toString());
+                setQRCode(mPayInfo.getWxpayCodeUrl(),mPayInfo.getWxpayCodeUrl());
             }
         }, new Action1<Throwable>() {
             @Override

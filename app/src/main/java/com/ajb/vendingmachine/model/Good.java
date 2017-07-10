@@ -6,7 +6,7 @@ import java.io.Serializable;
  * Created by fanyufeng on 2017-7-5.
  */
 
-public class good implements Serializable{
+public class Good implements Serializable{
 
     private String goodsName;
     private int goodsNum;

@@ -53,4 +53,15 @@ public class PayInfo implements Serializable {
     public void setDatetime(String datetime) {
         this.datetime = datetime;
     }
+
+    @Override
+    public String toString() {
+        return "PayInfo{" +
+                "wxpayCodeUrl='" + wxpayCodeUrl + '\'' +
+                ", alipayCodeUrl='" + alipayCodeUrl + '\'' +
+                ", outTradeNo='" + outTradeNo + '\'' +
+                ", passbackParam='" + passbackParam + '\'' +
+                ", datetime='" + datetime + '\'' +
+                '}';
+    }
 }

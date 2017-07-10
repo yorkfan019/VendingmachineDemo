@@ -35,4 +35,13 @@ public class PayNotify implements Serializable {
     public void setDatetime(String datetime) {
         this.datetime = datetime;
     }
+
+    @Override
+    public String toString() {
+        return "PayNotify{" +
+                "outTradeNo='" + outTradeNo + '\'' +
+                ", payResult='" + payResult + '\'' +
+                ", datetime='" + datetime + '\'' +
+                '}';
+    }
 }

@@ -58,6 +58,17 @@ public class QRcodeAlertDialog extends Dialog implements View.OnClickListener {
     }
 
     public QRcodeAlertDialog(Context context, int price, Bitmap weChatBitmap,Bitmap alipayBitmap,
+                            int windowWidth, int windowHeight) {
+        super(context, R.style.MyDialog);
+        this.context = context;
+        this.price = price;
+        this.alipayBitmap = alipayBitmap;
+        this.weChatBitmap = weChatBitmap;
+        this.windowWidth = windowWidth;
+        this.windowHeight = windowHeight;
+    }
+
+    public QRcodeAlertDialog(Context context, int price, Bitmap weChatBitmap,Bitmap alipayBitmap,
                              OnDialogButtonClickListener listener,int windowWidth, int windowHeight) {
         super(context, R.style.MyDialog);
         this.context = context;
