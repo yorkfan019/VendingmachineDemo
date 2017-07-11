@@ -12,6 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -106,6 +107,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getSupportActionBar().hide();
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
         context = this;
         //获取屏幕宽高
@@ -331,8 +335,8 @@ public class MainActivity extends AppCompatActivity {
                         windowHeight);
             } else {
 
-                alertDialog = new AlertDialog(context,""
-                        , getResources().getString(R.string.fail_content),windowWidth,windowHeight);
+                alertDialog = new AlertDialog(context,getResources().getString(R.string.pay_fail),
+                        getResources().getString(R.string.fail_content),windowWidth,windowHeight);
             }
             alertDialog.show();
             Toast.makeText(MainActivity.this, topic, Toast.LENGTH_SHORT).show();

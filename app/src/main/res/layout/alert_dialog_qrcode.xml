@@ -18,6 +18,7 @@
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:text="@string/pay"
+            android:textColor="@color/black"
             android:textSize="20sp"
             />
 
@@ -26,6 +27,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
+            android:textColor="@color/black"
             tools:text="$7.5"
             android:textSize="20sp"
             />
@@ -33,7 +35,8 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="12sp"
+        android:layout_margin="5dp"
+        android:textSize="16sp"
         android:text="@string/select_pay_type"
         android:gravity="center_horizontal"
         />
@@ -53,11 +56,13 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:text="@string/wechat"
-                android:textSize="12sp"
+                android:textSize="16sp"
                 />
             <ImageView
                 android:id="@+id/iv_wechat"
-                android:layout_margin="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 tools:src="@mipmap/b1"
@@ -75,11 +80,13 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:text="@string/alipay"
-                android:textSize="12sp"
+                android:textSize="16sp"
                 />
             <ImageView
                 android:id="@+id/iv_alipay"
-                android:layout_margin="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 tools:src="@mipmap/b2"

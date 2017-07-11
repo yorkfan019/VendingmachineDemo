@@ -52,7 +52,8 @@ public class AlertDialog extends Dialog implements View.OnClickListener {
         WindowManager.LayoutParams params = getWindow().getAttributes();
         params.width = (int) (windowWidth * 0.8); // 宽度设置为屏幕的一定比例大小
         params.height = (int) (windowHeight * 0.4); // 宽度设置为屏幕的一定比例大小
-        params.gravity = Gravity.CENTER;
+        params.gravity = Gravity.TOP;
+        params.y = (windowHeight - params.height)/2;
         getWindow().setAttributes(params);
         setCanceledOnTouchOutside(true);
         tv_title = (TextView) findViewById(R.id.tv_dialog_title);
@@ -61,6 +62,10 @@ public class AlertDialog extends Dialog implements View.OnClickListener {
         tv_title.setText(title);
         tv_content.setText(content);
         btn_close.setOnClickListener(this);
+        if(mCountDown != null) {
+            mCountDown.cancel();
+            mCountDown = null;
+        }
         mCountDown = new DialogCountDown(60000,1000);
         mCountDown.start();
     }
@@ -69,7 +74,8 @@ public class AlertDialog extends Dialog implements View.OnClickListener {
     public void dismiss() {
         super.dismiss();
         if(mCountDown != null) {
-            mCountDown = null;
+            mCountDown.cancel();
+            mCountDown=null;
         }
     }
 

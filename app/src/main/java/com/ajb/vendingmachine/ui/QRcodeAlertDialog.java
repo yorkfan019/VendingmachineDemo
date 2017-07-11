@@ -92,7 +92,8 @@ public class QRcodeAlertDialog extends Dialog implements View.OnClickListener {
         WindowManager.LayoutParams params = getWindow().getAttributes();
         params.width = (int) (windowWidth * 0.8); // 宽度设置为屏幕的一定比例大小
         params.height = (int) (windowHeight * 0.6); // 宽度设置为屏幕的一定比例大小
-        params.gravity = Gravity.CENTER;
+        params.gravity = Gravity.TOP;
+        params.y = (windowHeight - params.height)/2;
         getWindow().setAttributes(params);
         setCanceledOnTouchOutside(true);
         tv_price = (TextView) findViewById(R.id.tv_price);
@@ -114,8 +115,21 @@ public class QRcodeAlertDialog extends Dialog implements View.OnClickListener {
         btn_close.setOnClickListener(this);
         wechatIv.setOnClickListener(this);
         alipayIv.setOnClickListener(this);
+        if(mCountDown != null) {
+            mCountDown.cancel();
+            mCountDown = null;
+        }
         mCountDown = new DialogCountDown(90000,1000);
         mCountDown.start();
+    }
+
+    @Override
+    public void dismiss() {
+        super.dismiss();
+        if(mCountDown != null) {
+            mCountDown.cancel();
+            mCountDown = null;
+        }
     }
 
     @Override

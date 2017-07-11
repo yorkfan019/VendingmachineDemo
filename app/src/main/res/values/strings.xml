@@ -13,7 +13,7 @@
     <string name="pay_success">付款成功</string>
     <string name="pay_fail">付款失败</string>
     <string name="success_content">出货中，请在取货口出货</string>
-    <string name="fail_content">很抱歉，商品出货失败！\n请联系客服人员，客服电话：020*******</string>
+    <string name="fail_content">网络异常，请重新购买</string>
 
 
 </resources>
