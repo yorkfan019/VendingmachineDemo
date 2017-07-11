@@ -21,7 +21,7 @@ import com.ajb.vendingmachine.callback.MqttCallbackHandler;
 import com.ajb.vendingmachine.callback.SubcribeCallBackHandler;
 import com.ajb.vendingmachine.event.MessageEvent;
 import com.ajb.vendingmachine.http.ApiConfig;
-import com.ajb.vendingmachine.http.Fault;
+import com.ajb.vendingmachine.http.ExceptionHandle;
 import com.ajb.vendingmachine.loader.DataLoader;
 import com.ajb.vendingmachine.model.Good;
 import com.ajb.vendingmachine.model.PayInfo;
@@ -29,6 +29,7 @@ import com.ajb.vendingmachine.model.PayNotify;
 import com.ajb.vendingmachine.ui.AlertDialog;
 import com.ajb.vendingmachine.ui.QRcodeAlertDialog;
 import com.ajb.vendingmachine.util.GlideImageLoader;
+import com.ajb.vendingmachine.util.NetworkUtils;
 import com.ajb.vendingmachine.util.qrcode.EncodingHandler;
 import com.google.zxing.WriterException;
 import com.youth.banner.Banner;
@@ -382,29 +383,34 @@ public class MainActivity extends AppCompatActivity {
         mGood.setGoodsId("1");
         mGood.setGoodsPrice(500);
         mGood.setPassbackParam("pass");
-        mDataLoader.getPayInfo(mGood).subscribe(new Action1<PayInfo>() {
-            @Override
-            public void call(PayInfo payInfo) {
-                mPayInfo = payInfo;
-                Log.e(TAG, "mPayInfo="+mPayInfo.toString());
-                setQRCode(mPayInfo.getWxpayCodeUrl(),mPayInfo.getWxpayCodeUrl());
-            }
-        }, new Action1<Throwable>() {
-            @Override
-            public void call(Throwable throwable) {
-                Log.e(TAG,"error message:"+throwable.getMessage());
-                if(throwable instanceof Fault){
-                    Fault fault = (Fault) throwable;
-                    if(fault.getErrorCode() == 404){
-                        //错误处理
-                    }else if(fault.getErrorCode() == 500){
-                        //错误处理
-                    }else if(fault.getErrorCode() == 501){
-                        //错误处理
+        if(NetworkUtils.isConnected() && client.isConnected()) {
+
+            //请求支付信息
+            mDataLoader.getPayInfo(mGood).subscribe(new Action1<PayInfo>() {
+                @Override
+                public void call(PayInfo payInfo) {
+                    mPayInfo = payInfo;
+                    Log.e(TAG, "mPayInfo="+mPayInfo.toString());
+                    setQRCode(mPayInfo.getWxpayCodeUrl(),mPayInfo.getWxpayCodeUrl());
+                }
+            }, new Action1<Throwable>() {
+                @Override
+                public void call(Throwable throwable) {
+                    Log.e(TAG,"error message:"+throwable.getMessage());
+                    if(throwable instanceof Exception){
+                        //访问获得对应的Exception
+                        ExceptionHandle.ResponeThrowable responeThrowable = ExceptionHandle.handleException(throwable);
+                        Toast.makeText(MainActivity.this, responeThrowable.message, Toast.LENGTH_SHORT).show();
+                    }else {
+                        //将Throwable 和 未知错误的status code返回
+                        Toast.makeText(MainActivity.this, "未知错误", Toast.LENGTH_SHORT).show();
                     }
                 }
-            }
-        });
+            });
+        } else {
+            Toast.makeText(MainActivity.this, "当前网络无连接", Toast.LENGTH_SHORT).show();
+        }
+
     }
 
 }

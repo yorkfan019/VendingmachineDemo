@@ -32,6 +32,7 @@
         android:layout_width="match_parent"
         app:layout_heightPercent="20%"
         android:layout_centerVertical="true"
+        android:overScrollMode="never"
         android:scrollbars="none" />
 
 </android.support.percent.PercentRelativeLayout>
