@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,6 +47,8 @@ public class QRcodeAlertDialog extends Dialog implements View.OnClickListener {
     private OnDialogButtonClickListener listener;
     private int windowWidth;
     private int windowHeight;
+    private DialogCountDown mCountDown;
+    private TextView tv_timeCount;
 
     /**
      * 带监听器参数的构造函数
@@ -95,6 +98,7 @@ public class QRcodeAlertDialog extends Dialog implements View.OnClickListener {
         tv_price = (TextView) findViewById(R.id.tv_price);
         wechatIv = (ImageView) findViewById(R.id.iv_wechat);
         alipayIv = (ImageView) findViewById(R.id.iv_alipay);
+        tv_timeCount = (TextView) findViewById(R.id.tv_pay_time_count);
         ViewGroup.LayoutParams we_params = wechatIv.getLayoutParams();
         we_params.height = (int) (windowWidth*0.3);
         we_params.width = (int) (windowWidth*0.3);
@@ -110,6 +114,8 @@ public class QRcodeAlertDialog extends Dialog implements View.OnClickListener {
         btn_close.setOnClickListener(this);
         wechatIv.setOnClickListener(this);
         alipayIv.setOnClickListener(this);
+        mCountDown = new DialogCountDown(90000,1000);
+        mCountDown.start();
     }
 
     @Override
@@ -129,5 +135,23 @@ public class QRcodeAlertDialog extends Dialog implements View.OnClickListener {
         double yuan = (double)fen/100;
         DecimalFormat df = new DecimalFormat("0.00");//格式化小数，不足的补0
         return df.format(yuan);//返回的是String类型的
+    }
+
+    private class  DialogCountDown extends CountDownTimer {
+
+        public DialogCountDown(long millisInFuture, long countDownInterval) {
+            super(millisInFuture, countDownInterval);
+        }
+
+        @Override
+        public void onTick(long l) {
+            String text_str = context.getResources().getString(R.string.pay_in_90s);
+            tv_timeCount.setText(String.format(text_str, l/1000));
+        }
+
+        @Override
+        public void onFinish() {
+            dismiss();
+        }
     }
 }

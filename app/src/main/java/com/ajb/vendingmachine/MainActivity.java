@@ -192,36 +192,6 @@ public class MainActivity extends AppCompatActivity {
         banner.start();
     }
 
-    private void setQRCode(final String weChatUrl,final String alipayUrl) {
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    int widthAndHeight = (int) (windowWidth*0.3);
-                    weChatBitmap = EncodingHandler.createQRCode(weChatUrl,widthAndHeight);
-                    alipayBitmap = EncodingHandler.createQRCode(alipayUrl,widthAndHeight);
-                } catch (WriterException e) {
-                    e.printStackTrace();
-                }
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        dismissQRcodeAlertDialog();
-                        qRcodeAlertDialog = new QRcodeAlertDialog(context,
-                                mGood.getGoodsPrice(),
-                                weChatBitmap,
-                                alipayBitmap,
-                                windowWidth,
-                                windowHeight);
-                        qRcodeAlertDialog.show();
-                    }
-                });
-            }
-        });
-
-    }
-
     private void initGallery() {
         initRecyclerViewData();
         //得到控件
@@ -381,7 +351,7 @@ public class MainActivity extends AppCompatActivity {
         mGood.setGoodsName("可口可乐");
         mGood.setGoodsNum(1);
         mGood.setGoodsId("1");
-        mGood.setGoodsPrice(500);
+        mGood.setGoodsPrice(1);
         mGood.setPassbackParam("pass");
         if(NetworkUtils.isConnected() && client.isConnected()) {
 
@@ -410,7 +380,35 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Toast.makeText(MainActivity.this, "当前网络无连接", Toast.LENGTH_SHORT).show();
         }
+    }
 
+    private void setQRCode(final String weChatUrl,final String alipayUrl) {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    int widthAndHeight = (int) (windowWidth*0.3);
+                    weChatBitmap = EncodingHandler.createQRCode(weChatUrl,widthAndHeight);
+                    alipayBitmap = EncodingHandler.createQRCode(alipayUrl,widthAndHeight);
+                } catch (WriterException e) {
+                    e.printStackTrace();
+                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dismissQRcodeAlertDialog();
+                        qRcodeAlertDialog = new QRcodeAlertDialog(context,
+                                mGood.getGoodsPrice(),
+                                weChatBitmap,
+                                alipayBitmap,
+                                windowWidth,
+                                windowHeight);
+                        qRcodeAlertDialog.show();
+                    }
+                });
+            }
+        });
     }
 
 }

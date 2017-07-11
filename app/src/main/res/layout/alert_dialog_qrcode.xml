@@ -92,6 +92,7 @@
     </LinearLayout>
 
     <TextView
+        android:id="@+id/tv_pay_time_count"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/pay_in_90s"

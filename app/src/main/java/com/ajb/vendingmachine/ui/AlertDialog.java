@@ -3,6 +3,7 @@ package com.ajb.vendingmachine.ui;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
@@ -26,6 +27,7 @@ public class AlertDialog extends Dialog implements View.OnClickListener {
     private String content;
     private int windowWidth;
     private int windowHeight;
+    private DialogCountDown mCountDown;
 
     public AlertDialog(Context context, String title, String content) {
         super(context, R.style.MyDialog);
@@ -59,11 +61,39 @@ public class AlertDialog extends Dialog implements View.OnClickListener {
         tv_title.setText(title);
         tv_content.setText(content);
         btn_close.setOnClickListener(this);
+        mCountDown = new DialogCountDown(60000,1000);
+        mCountDown.start();
+    }
+
+    @Override
+    public void dismiss() {
+        super.dismiss();
+        if(mCountDown != null) {
+            mCountDown = null;
+        }
     }
 
     @Override
     public void onClick(View view) {
         if(view.getId() ==  R.id.btn_dialog_close) {
+            dismiss();
+        }
+    }
+
+    private class  DialogCountDown extends CountDownTimer {
+
+        public DialogCountDown(long millisInFuture, long countDownInterval) {
+            super(millisInFuture, countDownInterval);
+        }
+
+        @Override
+        public void onTick(long l) {
+            String btn_str = context.getResources().getString(R.string.close_count);
+            btn_close.setText(String.format(btn_str, l/1000));
+        }
+
+        @Override
+        public void onFinish() {
             dismiss();
         }
     }
