@@ -64,15 +64,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private List<Integer> mDatas;
-    private List<String> urlDatas = new ArrayList<String>(Arrays.asList("weixin://.dfadfadfadsf.,dfadf/",
-            "alipay://dfdafadf.dfadfadfadf",
-            "http://www.tabobao.com/",
-            "https://www.baidu.com/",
-            "http://www.qq.com/",
-            "http://www.tabobao.com/",
-            "https://www.baidu.com/",
-            "http://www.qq.com/"));
-
+    private List<Integer> mBigDatas;
 
     HandlerThread handlerThread;
     Handler mHandler;
@@ -180,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
                 httpRequest();
             }
         });
-        detailIv.setImageResource(mDatas.get(0));
+        detailIv.setImageResource(mBigDatas.get(0));
         //设置布局管理器
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -191,21 +183,24 @@ public class MainActivity extends AppCompatActivity {
         mAdapter.setOnItemClickListener(new GalleryAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                detailIv.setImageResource(mDatas.get(position));
+                detailIv.setImageResource(mBigDatas.get(position));
             }
         });
         mRecyclerView.setAdapter(mAdapter);
     }
 
     private void initRecyclerViewData() {
-        mDatas = new ArrayList<Integer>(Arrays.asList(R.mipmap.p1,
-                R.mipmap.p2,
-                R.mipmap.p3,
-                R.mipmap.p4,
-                R.mipmap.p5,
-                R.mipmap.p1,
-                R.mipmap.p2,
-                R.mipmap.p3));
+        mDatas = new ArrayList<Integer>(Arrays.asList(R.mipmap.good1_s,
+                R.mipmap.good2_s,
+                R.mipmap.good3_s,
+                R.mipmap.good4_s,
+                R.mipmap.good5_s));
+
+        mBigDatas = new ArrayList<Integer>(Arrays.asList(R.mipmap.good1,
+                R.mipmap.good2,
+                R.mipmap.good3,
+                R.mipmap.good4,
+                R.mipmap.good5));
     }
 
     /**

@@ -65,7 +65,6 @@
                 android:layout_marginRight="10dp"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
-                tools:src="@mipmap/b1"
                 android:scaleType="centerCrop"
                 android:layout_gravity="center_horizontal"/>
         </LinearLayout>
@@ -89,7 +88,6 @@
                 android:layout_marginRight="10dp"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
-                tools:src="@mipmap/b2"
                 android:scaleType="centerCrop"
                 android:layout_gravity="center_horizontal"/>
         </LinearLayout>

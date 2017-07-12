@@ -17,7 +17,7 @@ public class GlideImageLoader extends ImageLoader {
         Glide.with(context.getApplicationContext())
                 .load(path)
                 .crossFade()
-                .centerCrop()
+                .fitCenter()
                 .into(imageView);
     }
 }
