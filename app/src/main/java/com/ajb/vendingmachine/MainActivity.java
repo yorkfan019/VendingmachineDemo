@@ -1,11 +1,11 @@
 package com.ajb.vendingmachine;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,16 +17,13 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.ajb.vendingmachine.adapter.GalleryAdapter;
-import com.ajb.vendingmachine.callback.ConnectCallBackHandler;
-import com.ajb.vendingmachine.callback.MqttCallbackHandler;
-import com.ajb.vendingmachine.callback.SubcribeCallBackHandler;
 import com.ajb.vendingmachine.event.MessageEvent;
-import com.ajb.vendingmachine.http.ApiConfig;
 import com.ajb.vendingmachine.http.ExceptionHandle;
 import com.ajb.vendingmachine.loader.DataLoader;
 import com.ajb.vendingmachine.model.Good;
 import com.ajb.vendingmachine.model.PayInfo;
 import com.ajb.vendingmachine.model.PayNotify;
+import com.ajb.vendingmachine.service.MQTTService;
 import com.ajb.vendingmachine.ui.AlertDialog;
 import com.ajb.vendingmachine.ui.QRcodeAlertDialog;
 import com.ajb.vendingmachine.util.GlideImageLoader;
@@ -37,9 +34,6 @@ import com.youth.banner.Banner;
 import com.youth.banner.BannerConfig;
 import com.youth.banner.Transformer;
 
-import org.eclipse.paho.android.service.MqttAndroidClient;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -82,22 +76,7 @@ public class MainActivity extends AppCompatActivity {
 
     HandlerThread handlerThread;
     Handler mHandler;
-    Handler subscribeHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-           switch(msg.what) {
-               case 1:
-                   subscribe("anjubao/vem/topic/pay/notify");
-                   break;
-               case 0:
-                   break;
-               default:
-                   break;
-           }
-        }
-    };
 
-    private MqttAndroidClient client;
     private DataLoader mDataLoader;
     private Good mGood = new Good();
     private PayInfo mPayInfo = new PayInfo();
@@ -127,13 +106,14 @@ public class MainActivity extends AppCompatActivity {
         handlerThread.start();
         mHandler = new Handler(handlerThread.getLooper());
         //连接队列服务器
-        startConnectActiveMq(ApiConfig.CLIENT_ID,ApiConfig.ACTIVE_MQ_IP,ApiConfig.ACTIVE_MQ_PORT);
+        EventBus.getDefault().register(this);
+        startService(new Intent(this, MQTTService.class));
+
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -144,17 +124,10 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        stopService(new Intent(this,MQTTService.class));
         super.onDestroy();
         dismissAlertDialog();
         dismissQRcodeAlertDialog();
-
-        if(client != null) {
-            try {
-                client.disconnect();
-            } catch (MqttException e) {
-                e.printStackTrace();
-            }
-        }
         handlerThread.quit();
     }
     private void dismissAlertDialog() {
@@ -235,68 +208,6 @@ public class MainActivity extends AppCompatActivity {
                 R.mipmap.p3));
     }
 
-
-    /**
-     * 连接activeMQ服务器
-     */
-    private void startConnectActiveMq(String clientID, String serverIP, String port) {
-        //服务器地址
-        String uri = "tcp://";
-        uri = uri+serverIP+":"+port;
-        Log.d(TAG,uri+"  "+clientID);
-        /**
-         * 连接的选项
-         */
-        MqttConnectOptions conOpt = new MqttConnectOptions();
-        /**设计连接超时时间*/
-        conOpt.setConnectionTimeout(3000);
-        /**设计心跳间隔时间300秒*/
-        conOpt.setKeepAliveInterval(300);
-        /**
-         * 创建连接对象
-         */
-        client = new MqttAndroidClient(context,uri, clientID);
-        /**
-         * 连接后设计一个回调
-         */
-        client.setCallback(new MqttCallbackHandler(context, clientID));
-        /**
-         * 开始连接服务器，参数：ConnectionOptions,  IMqttActionListener
-         */
-        try {
-            client.connect(conOpt, null, new ConnectCallBackHandler(context,subscribeHandler));
-        } catch (MqttException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * 获取MqttAndroidClient实例
-     * @return
-     */
-    private MqttAndroidClient getMqttAndroidClientInstance(){
-        if(client!=null)
-            return  client;
-        return null;
-    }
-
-
-    /**
-     * 订阅topic
-     */
-    public void subscribe(String topic) {
-        MqttAndroidClient client = getMqttAndroidClientInstance();
-        if(client != null) {
-            try {
-                client.subscribe(topic,0,null,new SubcribeCallBackHandler(context));
-            } catch (MqttException e) {
-                e.printStackTrace();
-            }
-        } else {
-            Log.e("subscribe","MqttAndroidClient==null");
-        }
-    }
-
     /**
      * 运行在主线程
      * 订阅mqtt返回信息
@@ -357,7 +268,7 @@ public class MainActivity extends AppCompatActivity {
         mGood.setGoodsId("1");
         mGood.setGoodsPrice(1);
         mGood.setPassbackParam("pass");
-        if(NetworkUtils.isConnected() && client.isConnected()) {
+        if(NetworkUtils.isConnected() && MQTTService.getMqttAndroidClientInstance().isConnected()) {
 
             //请求支付信息
             mDataLoader.getPayInfo(mGood).subscribe(new Action1<PayInfo>() {

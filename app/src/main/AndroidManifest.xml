@@ -29,6 +29,7 @@
 
         <!-- Mqtt Service -->
         <service android:name="org.eclipse.paho.android.service.MqttService" />
+        <service android:name=".service.MQTTService"/>
     </application>
 
 </manifest>
