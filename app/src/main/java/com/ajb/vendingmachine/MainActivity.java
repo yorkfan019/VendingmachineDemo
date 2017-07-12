@@ -29,6 +29,7 @@ import com.ajb.vendingmachine.ui.QRcodeAlertDialog;
 import com.ajb.vendingmachine.util.GlideImageLoader;
 import com.ajb.vendingmachine.util.NetworkUtils;
 import com.ajb.vendingmachine.util.qrcode.EncodingHandler;
+import com.bumptech.glide.Glide;
 import com.google.zxing.WriterException;
 import com.youth.banner.Banner;
 import com.youth.banner.BannerConfig;
@@ -172,7 +173,8 @@ public class MainActivity extends AppCompatActivity {
                 httpRequest();
             }
         });
-        detailIv.setImageResource(mBigDatas.get(0));
+//        detailIv.setImageResource(mBigDatas.get(0));
+        Glide.with(context).load(mBigDatas.get(0)).fitCenter().into(detailIv);
         //设置布局管理器
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -183,7 +185,8 @@ public class MainActivity extends AppCompatActivity {
         mAdapter.setOnItemClickListener(new GalleryAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                detailIv.setImageResource(mBigDatas.get(position));
+//                detailIv.setImageResource(mBigDatas.get(position));
+                Glide.with(context).load(mBigDatas.get(position)).fitCenter().into(detailIv);
             }
         });
         mRecyclerView.setAdapter(mAdapter);
