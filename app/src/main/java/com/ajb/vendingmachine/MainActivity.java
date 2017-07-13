@@ -3,6 +3,7 @@ package com.ajb.vendingmachine;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -55,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
     //屏幕宽高
     private int windowWidth;
     private int windowHeight;
+    private Bitmap alipayLogo;
+    private Bitmap weChatLogo;
 
     //UI
     private Bitmap weChatBitmap;
@@ -89,6 +92,8 @@ public class MainActivity extends AppCompatActivity {
         getWindowManager().getDefaultDisplay().getMetrics(metric);
         windowWidth = metric.widthPixels;     // 屏幕宽度（像素）
         windowHeight = metric.heightPixels;   // 屏幕高度（像素）
+        alipayLogo = BitmapFactory.decodeResource(getResources(),R.drawable.alipay_icon512);
+        weChatLogo = BitmapFactory.decodeResource(getResources(),R.drawable.wechat_icon);
 
         mDataLoader = new DataLoader();
         //初始化banner
@@ -301,8 +306,8 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 try {
                     int widthAndHeight = (int) (windowWidth*0.3);
-                    weChatBitmap = EncodingHandler.createQRCode(weChatUrl,widthAndHeight);
-                    alipayBitmap = EncodingHandler.createQRCode(alipayUrl,widthAndHeight);
+                    weChatBitmap = EncodingHandler.createQRCode(weChatUrl,widthAndHeight,weChatLogo);
+                    alipayBitmap = EncodingHandler.createQRCode(alipayUrl,widthAndHeight,alipayLogo);
                 } catch (WriterException e) {
                     e.printStackTrace();
                 }

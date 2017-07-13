@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Vending machine</string>
+    <string name="app_name">自动售货机</string>
 
     <string name="pay">支付</string>
     <string name="wechat">微信</string>
