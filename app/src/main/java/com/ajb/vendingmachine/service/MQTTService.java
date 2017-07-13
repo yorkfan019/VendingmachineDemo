@@ -152,7 +152,7 @@ public class MQTTService extends Service{
             Log.i(TAG, "connectCallBackHandler连接成功 ");
             try {
                 // 订阅myTopic话题
-                client.subscribe(ApiConfig.TOPIC,0,null,subscribeCallBackHandler);
+                client.subscribe(ApiConfig.TOPIC,1,null,subscribeCallBackHandler);
             } catch (MqttException e) {
                 e.printStackTrace();
             }
