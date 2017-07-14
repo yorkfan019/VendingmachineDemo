@@ -138,10 +138,10 @@ public class QRcodeAlertDialog extends Dialog implements View.OnClickListener {
             dismiss();
         }
         if(view.getId() == R.id.iv_alipay) {
-            listener.onDialogButtonClick(1,false);
+//            listener.onDialogButtonClick(1,false);
         }
         if(view.getId() == R.id.iv_wechat) {
-            listener.onDialogButtonClick(1,true);
+//            listener.onDialogButtonClick(1,true);
         }
     }
 

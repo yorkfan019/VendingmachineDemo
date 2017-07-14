@@ -3,13 +3,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/good_list_background"
-    android:padding="10dp"
+    android:padding="2dp"
     android:layout_margin="5dp">
 
     <ImageView
         android:id="@+id/id_index_gallery_item_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="centerCrop" />
+        android:scaleType="fitCenter" />
 
 </LinearLayout>

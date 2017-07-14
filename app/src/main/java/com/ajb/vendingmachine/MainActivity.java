@@ -198,13 +198,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initRecyclerViewData() {
-        mDatas = new ArrayList<Integer>(Arrays.asList(R.mipmap.good1_s,
+        mDatas = new ArrayList<Integer>(Arrays.asList(
+                R.mipmap.goodtest,
+                R.mipmap.good1_s,
                 R.mipmap.good2_s,
                 R.mipmap.good3_s,
                 R.mipmap.good4_s,
                 R.mipmap.good5_s));
 
-        mBigDatas = new ArrayList<Integer>(Arrays.asList(R.mipmap.good1,
+        mBigDatas = new ArrayList<Integer>(Arrays.asList(
+                R.drawable.test1500,
+                R.mipmap.good1,
                 R.mipmap.good2,
                 R.mipmap.good3,
                 R.mipmap.good4,
