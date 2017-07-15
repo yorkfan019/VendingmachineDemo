@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.ajb.vendingmachine.R;
+import com.bumptech.glide.Glide;
 
 import java.util.List;
 
@@ -28,16 +29,19 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
         this.mOnItemClickListener = mOnItemClickListener;
     }
 
+    private Context mContext;
     private LayoutInflater mInflater;
     private List<Integer> mDatas;
     private int mRecyclerViewWidth;
 
     public GalleryAdapter(Context context, List<Integer> datats) {
+        mContext = context;
         mInflater = LayoutInflater.from(context);
         mDatas = datats;
     }
 
     public GalleryAdapter(Context context, List<Integer> datats ,int recyclerViewWidth) {
+        mContext = context;
         mInflater = LayoutInflater.from(context);
         mDatas = datats;
         mRecyclerViewWidth = recyclerViewWidth;
@@ -66,8 +70,8 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(final ViewHolder viewHolder, final int i) {
-        viewHolder.mImg.setImageResource(mDatas.get(i));
-
+//        viewHolder.mImg.setImageResource(mDatas.get(i));
+        Glide.with(mContext).load(mDatas.get(i)).fitCenter().into(viewHolder.mImg);
         //如果设置了回调，则设置点击事件
         if(mOnItemClickListener != null) {
             viewHolder.itemView.setOnClickListener(new View.OnClickListener() {

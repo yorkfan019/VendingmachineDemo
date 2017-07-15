@@ -127,6 +127,8 @@ public class MainActivity extends AppCompatActivity {
         dismissAlertDialog();
         dismissQRcodeAlertDialog();
         handlerThread.quit();
+        animHandler.removeCallbacks(animTask);
+        animHandler.removeCallbacksAndMessages(null);
     }
     private void dismissAlertDialog() {
         if(alertDialog != null && alertDialog.isShowing()) {
@@ -179,7 +181,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 //        detailIv.setImageResource(mBigDatas.get(0));
-        Glide.with(context).load(mBigDatas.get(0)).fitCenter().into(detailIv);
+//        Glide.with(context).load(mBigDatas.get(0)).fitCenter().into(detailIv);
+        startAnimation();
         //设置布局管理器
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -197,6 +200,8 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setAdapter(mAdapter);
     }
 
+    private List<Integer> mAnimationDatas;
+
     private void initRecyclerViewData() {
         mDatas = new ArrayList<Integer>(Arrays.asList(
                 R.mipmap.goodtest,
@@ -213,6 +218,13 @@ public class MainActivity extends AppCompatActivity {
                 R.mipmap.good3,
                 R.mipmap.good4,
                 R.mipmap.good5));
+
+        mAnimationDatas = new ArrayList<>();
+        for(int i=1;i<=63;i++) {
+            int resID = getResources().getIdentifier("goods_"+ i, "drawable",getPackageName());
+            mAnimationDatas.add(resID);
+        }
+        Log.e(TAG,mAnimationDatas.toString());
     }
 
     /**
@@ -331,6 +343,37 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         });
+    }
+
+    private int count = 0;
+    private int currentItem = 0;
+    private int delayTime = 500;
+    private Handler animHandler = new Handler();
+    private Runnable animTask = new Runnable() {
+        @Override
+        public void run() {
+            count = mAnimationDatas.size();
+            if(count > 1) {
+                currentItem = currentItem % count;
+                Log.e("Animtask","currentItem="+currentItem);
+                if(currentItem == 1) {
+                    animHandler.post(animTask);
+                    Glide.with(context).load(mAnimationDatas.get(currentItem)).fitCenter().into(detailIv);
+                } else {
+                    animHandler.postDelayed(animTask, delayTime);
+                    Glide.with(context).load(mAnimationDatas.get(currentItem)).fitCenter().into(detailIv);
+                }
+                currentItem++;
+            }
+        }
+    };
+
+
+    private void startAnimation() {
+        count = 0;
+        currentItem = 0;
+        animHandler.removeCallbacks(animTask);
+        animHandler.postDelayed(animTask,delayTime);
     }
 
 }

@@ -41,7 +41,7 @@ public final class EncodingHandler {
         bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
 
         if(logoBm != null) {
-            bitmap = addLogo(bitmap, logoBm);
+//            bitmap = addLogo(bitmap, logoBm);
         }
 
         return bitmap;
