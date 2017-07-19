@@ -26,7 +26,6 @@ public class RetrofitServiceManager {
         builder.readTimeout(DEFAULT_READ_TIME_OUT,TimeUnit.SECONDS);
         // 添加公共参数拦截器
         HttpCommonInterceptor commonInterceptor = new HttpCommonInterceptor.Builder()
-                .addHeaderParams("OmpUserAccount","admin")
                 .build();
         builder.addInterceptor(commonInterceptor);
         //添加日志
@@ -34,7 +33,7 @@ public class RetrofitServiceManager {
             @Override
             public void log(String message) {
                 //打印retrofit日志
-                Log.e("RetrofitLog","retrofitBack = "+message);
+                Log.i("RetrofitLog","retrofitBack = "+message);
             }
         });
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);

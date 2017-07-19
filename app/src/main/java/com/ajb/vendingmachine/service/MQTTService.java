@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
+import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -39,7 +40,8 @@ public class MQTTService extends Service{
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        init(ApiConfig.CLIENT_ID,ApiConfig.ACTIVE_MQ_IP,ApiConfig.ACTIVE_MQ_PORT);
+        String ClientID = "android_"+ getUniqueId();
+        init(ClientID,ApiConfig.ACTIVE_MQ_IP,ApiConfig.ACTIVE_MQ_PORT);
         if (netWorkStateReceiver == null) {
             netWorkStateReceiver = new NetWorkStateReceiver();
         }
@@ -132,7 +134,7 @@ public class MQTTService extends Service{
         Log.i(TAG, "doClientConnection进行连接");
 
         if(NetworkUtils.isConnected()) {
-            if (!client.isConnected() && !isServiceOnDestroy) {
+            if ( !isServiceOnDestroy && !client.isConnected()) {
                 try {
                     client.connect(conOpt, null, connectCallBackHandler);
                 } catch (MqttException e) {
@@ -177,7 +179,10 @@ public class MQTTService extends Service{
         @Override
         public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
             Log.i(TAG, "subscribeCallBackHandler订阅失败 ");
-            exception.printStackTrace();
+
+            if(exception != null) {
+                exception.printStackTrace();
+            }
             // 订阅失败，重连
             doClientConnection();
         }
@@ -211,6 +216,26 @@ public class MQTTService extends Service{
             doClientConnection();
         }
     };
+
+    private String getUniqueId() {
+        String m_szDevIDShort = "35" + //we make this look like a valid IMEI
+
+                Build.BOARD.length()%10 +
+                Build.BRAND.length()%10 +
+                Build.CPU_ABI.length()%10 +
+                Build.DEVICE.length()%10 +
+                Build.DISPLAY.length()%10 +
+                Build.HOST.length()%10 +
+                Build.ID.length()%10 +
+                Build.MANUFACTURER.length()%10 +
+                Build.MODEL.length()%10 +
+                Build.PRODUCT.length()%10 +
+                Build.TAGS.length()%10 +
+                Build.TYPE.length()%10 +
+                Build.USER.length()%10 ; //13 digits
+
+        return m_szDevIDShort;
+    }
 
 
 

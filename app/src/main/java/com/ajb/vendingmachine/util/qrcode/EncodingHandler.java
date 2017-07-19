@@ -8,6 +8,7 @@ import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
 import java.util.Hashtable;
 
@@ -21,10 +22,14 @@ public final class EncodingHandler {
     private static final int BLACK = 0xff000000;
 
     public static Bitmap createQRCode(String str, int widthAndHeight, Bitmap logoBm) throws WriterException {
-        Hashtable<EncodeHintType, String> hints = new Hashtable<EncodeHintType, String>();
+        Hashtable<EncodeHintType, Object> hints = new Hashtable<EncodeHintType, Object>();
         hints.put(EncodeHintType.CHARACTER_SET, "utf-8");
+        //容错级别
+        hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
+        //设置白边大小
+//        hints.put(EncodeHintType.MARGIN, 1);
         BitMatrix matrix = new MultiFormatWriter().encode(str,
-                BarcodeFormat.QR_CODE, widthAndHeight, widthAndHeight);
+                BarcodeFormat.QR_CODE, widthAndHeight, widthAndHeight,hints);
         int width = matrix.getWidth();
         int height = matrix.getHeight();
         int[] pixels = new int[width * height];
@@ -41,7 +46,7 @@ public final class EncodingHandler {
         bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
 
         if(logoBm != null) {
-//            bitmap = addLogo(bitmap, logoBm);
+            bitmap = addLogo(bitmap, logoBm);
         }
 
         return bitmap;
